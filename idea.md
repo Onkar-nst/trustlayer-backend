@@ -27,14 +27,6 @@ TrustLayer is a backend system that creates **trust scores** for users based on:
 5. **Trust Score** — Auto-calculated from transactions + reviews
 6. **Dispute** — Users can challenge unfair reviews
 
-## Non-Goals (Out of Scope)
-
-- No frontend / UI (API only)
-- No payment processing
-- No AI/ML
-- No mobile app
-- No blockchain
-
 ## Future Scope
 
 - Public API for third-party platforms
