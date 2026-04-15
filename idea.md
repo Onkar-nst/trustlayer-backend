@@ -44,3 +44,4 @@ TrustLayer is a backend system that creates **trust scores** for users based on:
 | JWT Auth | Stateless, secure authentication |
 | Input Validation | At controller level |
 | Audit Logging | Every important action is logged |
+<!-- Rebuilt with TypeScript on 2026-04-15 -->
