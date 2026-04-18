@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -9,7 +8,8 @@ import {
   History,
   ShieldCheck,
   User,
-  LogOut
+  LogOut,
+  ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -26,71 +26,51 @@ const Sidebar = () => {
   ];
 
   if (user?.role === 'admin') {
-    navItems.push({ to: '/admin', icon: ShieldCheck, label: 'Admin' });
+    navItems.push({ to: '/admin', icon: ShieldCheck, label: 'Admin Panel' });
   }
 
-  const getTier = (score: number = 0) => {
-    if (score >= 80) return { label: 'Premium', class: 'badge-blue' };
-    if (score >= 50) return { label: 'Trusted', class: 'badge-emerald' };
-    return { label: 'Free', class: 'badge-gray' };
-  };
-
-  const tier = getTier(0); // Mock score for now
-
   return (
-    <aside className="w-64 h-screen bg-white border-r border-slate-100 flex flex-col fixed left-0 top-0">
+    <aside className="w-64 h-screen bg-card border-r border-border/50 flex flex-col fixed left-0 top-0 z-50 transition-colors duration-300">
       <div className="p-6">
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <ShieldCheck className="text-white w-5 h-5" />
+        <div className="flex items-center gap-3 mb-8 px-2">
+          <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <ShieldCheck className="text-white w-6 h-6" />
           </div>
-          <span className="text-xl font-bold tracking-tight">TrustLayer</span>
+          <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+            TrustLayer
+          </span>
         </div>
 
-        <nav className="space-y-1">
+        <nav className="space-y-1.5">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) => 
-                `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                `flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-all group ${
                   isActive 
-                    ? 'bg-blue-50 text-blue-600' 
-                    : 'text-slate-600 hover:bg-slate-50'
+                    ? 'bg-primary/10 text-primary shadow-sm' 
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                 }`
               }
             >
-              <item.icon className="w-4 h-4" />
-              {item.label}
+              <div className="flex items-center gap-3">
+                <item.icon className="w-4 h-4" />
+                {item.label}
+              </div>
+              <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
             </NavLink>
           ))}
         </nav>
       </div>
 
-      <div className="mt-auto p-4 border-t border-slate-50">
-        <div className="flex items-center gap-3 mb-4 px-2">
-          <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden">
-            {user?.profile?.avatarUrl ? (
-              <img src={user.profile.avatarUrl} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <User className="text-slate-400 w-5 h-5" />
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-900 truncate">
-              {user?.profile?.displayName || user?.email}
-            </p>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${tier.class}`}>
-              {tier.label}
-            </span>
-          </div>
-        </div>
+      <div className="mt-auto p-4 border-t border-border/30">
         <button 
           onClick={logout}
-          className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all"
         >
           <LogOut className="w-4 h-4" />
-          Logout
+          Sign Out
         </button>
       </div>
     </aside>

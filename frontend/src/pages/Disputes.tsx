@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import apiClient from '../api/apiClient';
-import { AlertCircle, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 const Disputes = () => {
   const [disputes, setDisputes] = useState([]);

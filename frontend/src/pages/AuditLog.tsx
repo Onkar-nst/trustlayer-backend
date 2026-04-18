@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import apiClient from '../api/apiClient';
 import { format } from 'date-fns';
-import { Activity, Terminal } from 'lucide-react';
+import { Terminal } from 'lucide-react';
 
 const AuditLog = () => {
   const [logs, setLogs] = useState([]);

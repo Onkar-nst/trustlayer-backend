@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import apiClient from '../api/apiClient';
-import { useAuth } from '../context/AuthContext';
-import { Star, MessageSquare, ShieldAlert } from 'lucide-react';
+import { Star, ShieldAlert } from 'lucide-react';
 
 const Reviews = () => {
   const [received, setReceived] = useState([]);

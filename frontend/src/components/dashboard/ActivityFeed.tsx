@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { formatDistanceToNow } from 'date-fns';
 import { CircleDot } from 'lucide-react';
 

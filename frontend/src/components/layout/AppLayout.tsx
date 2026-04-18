@@ -1,15 +1,18 @@
-import React from 'react';
 import Sidebar from './Sidebar';
+import TopBar from './TopBar';
 
-const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const AppLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       <Sidebar />
-      <main className="pl-64">
-        <div className="p-8 max-w-7xl mx-auto">
-          {children}
-        </div>
-      </main>
+      <div className="pl-64 flex flex-col min-h-screen">
+        <TopBar />
+        <main className="flex-1 p-8">
+          <div className="max-w-7xl mx-auto animate-in fade-in duration-500">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 };

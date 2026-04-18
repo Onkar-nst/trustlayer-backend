@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import apiClient from '../api/apiClient';
 import { useAuth } from '../context/AuthContext';
-import { Plus, ArrowRight, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 const Transactions = () => {
   const { user } = useAuth();
@@ -27,7 +27,7 @@ const Transactions = () => {
     fetchTransactions();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
       await apiClient.post('/transactions', {

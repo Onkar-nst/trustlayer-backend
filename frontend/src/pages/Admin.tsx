@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import apiClient from '../api/apiClient';
-import { ShieldCheck, Check, X, AlertCircle, LayoutGrid, Users, FileCheck } from 'lucide-react';
+import { Check, X, AlertCircle, Users, FileCheck } from 'lucide-react';
 
 const Admin = () => {
   const [tab, setTab] = useState('verifications');

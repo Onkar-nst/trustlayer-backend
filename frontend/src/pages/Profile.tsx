@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import apiClient from '../api/apiClient';
-import { ShieldCheck, Star, Award } from 'lucide-react';
+import { ShieldCheck, Award, Check, Clock } from 'lucide-react';
 
 const Profile = () => {
   const { userId } = useParams();
