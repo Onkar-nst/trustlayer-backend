@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --accent: #3b82f6;
+    --background: #ffffff;
+    --foreground: #0f172a;
+    --muted: #f8fafc;
+    --muted-foreground: #64748b;
+    --border: #e2e8f0;
+  }
+
+  body {
+    @apply font-['Inter'] antialiased bg-white text-slate-900;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50;
+  }
+
+  .btn-outline {
+    @apply border border-slate-200 text-slate-600 px-4 py-2 rounded-lg font-medium hover:bg-slate-50 transition-colors;
+  }
+
+  .card {
+    @apply bg-white border border-slate-100 rounded-xl p-6 shadow-sm;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all;
+  }
+
+  .badge {
+    @apply px-2 py-1 rounded text-xs font-semibold uppercase tracking-wider;
+  }
+
+  .badge-blue { @apply bg-blue-50 text-blue-700; }
+  .badge-gray { @apply bg-slate-100 text-slate-600; }
+  .badge-green { @apply bg-emerald-50 text-emerald-700; }
+  .badge-red { @apply bg-rose-50 text-rose-700; }
+}

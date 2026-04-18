@@ -1,10 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id    String @id @default(uuid())
-  email String @unique
-  name  String
+  id               String               @id @default(uuid())
+  email            String               @unique
+  passwordHash     String
+  role             String               @default("user") // "user" | "admin"
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  
+  profile          UserProfile?
+  identity         IdentityVerification?
+  trustScore       TrustScore?
+  
+  transactionsAsSender   Transaction[] @relation("SenderTransactions")
+  transactionsAsReceiver Transaction[] @relation("ReceiverTransactions")
+  
+  reviewsGiven     Review[]  @relation("AuthorReviews")
+  reviewsReceived  Review[]  @relation("SubjectReviews")
+  
+  disputesRaised   Dispute[] @relation("RaisedBy")
+  disputesResolved Dispute[] @relation("ResolvedByAdmin")
+  
+  auditLogs        AuditLog[]
+}
+
+model UserProfile {
+  userId      String  @id
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName String
+  avatarUrl   String?
+  bio         String?
+  isPublic    Boolean @default(true)
+}
+
+model IdentityVerification {
+  userId       String   @id
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentType String   // "GOVT_ID" | "PASSPORT" | "DRIVING_LICENSE"
+  documentUrl  String
+  status       String   @default("PENDING") // "PENDING" | "VERIFIED" | "REJECTED"
+  reviewedAt   DateTime?
+  reviewedBy   String?  // adminId (managed manually in service)
+  rejectionReason String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model TrustScore {
+  userId            String   @id
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  total             Int      @default(50)
+  baseScore         Int      @default(50)
+  identityBonus     Int      @default(0)
+  transactionBonus  Int      @default(0)
+  reviewBonus       Int      @default(0)
+  penaltyPoints     Int      @default(0)
+  lastRecalculatedAt DateTime @default(now())
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  senderId    String
+  sender      User     @relation("SenderTransactions", fields: [senderId], references: [id])
+  receiverId  String
+  receiver    User     @relation("ReceiverTransactions", fields: [receiverId], references: [id])
+  amount      Float
+  currency    String   @default("USD")
+  type        String   // "PAYMENT" | "REFUND" | "ESCROW" | "TRANSFER"
+  status      String   @default("PENDING") // "PENDING" | "COMPLETED" | "FAILED" | "DISPUTED"
+  description String?
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+  
+  reviews     Review[]
+  disputes    Dispute[]
+}
+
+model Review {
+  id            String   @id @default(uuid())
+  authorId      String
+  author        User     @relation("AuthorReviews", fields: [authorId], references: [id])
+  subjectId     String
+  subject       User     @relation("SubjectReviews", fields: [subjectId], references: [id])
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  rating        Int      // 1-5
+  body          String
+  isAnonymous   Boolean  @default(false)
+  status        String   @default("ACTIVE") // "ACTIVE" | "HIDDEN" | "DISPUTED"
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  disputes      Dispute[]
+}
+
+model Dispute {
+  id                 String   @id @default(uuid())
+  raisedById         String
+  raisedBy           User     @relation("RaisedBy", fields: [raisedById], references: [id])
+  targetReviewId     String?
+  targetReview       Review?  @relation(fields: [targetReviewId], references: [id])
+  targetTransactionId String?
+  targetTransaction  Transaction? @relation(fields: [targetTransactionId], references: [id])
+  reason             String
+  evidenceText       String?
+  status             String   @default("OPEN") // "OPEN" | "UNDER_REVIEW" | "RESOLVED" | "REJECTED"
+  resolution         String?
+  resolvedAt         DateTime?
+  resolvedBy         String?
+  resolver           User?    @relation("ResolvedByAdmin", fields: [resolvedBy], references: [id])
+  createdAt          DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  action     String
+  entity     String
+  entityId   String
+  metadata   String?  // JSON string
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
 }
