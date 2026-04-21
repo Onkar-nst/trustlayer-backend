@@ -12,18 +12,13 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 // Middlewares
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://localhost:5175',
-  'http://localhost:5176',
-  'http://localhost:5177',
-  'http://localhost:5178'
-];
-
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // In production, allow same-origin and specific frontend URL
+    if (!origin || 
+        origin.includes('localhost') || 
+        origin.includes('vercel.app') || 
+        origin === process.env.FRONTEND_URL) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));

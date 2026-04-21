@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   withCredentials: true,
 });
 
@@ -12,7 +12,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        const res = await axios.post('http://localhost:5001/api/auth/refresh', {}, { withCredentials: true });
+        const res = await apiClient.post('/auth/refresh');
         const { accessToken } = res.data;
         apiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
