@@ -7,7 +7,6 @@ import {
   AlertCircle, 
   History,
   ShieldCheck,
-  User,
   LogOut,
   ChevronRight
 } from 'lucide-react';
