@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react';
 
 const Transactions = () => {
   const { user } = useAuth();
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     receiverId: '',
@@ -17,9 +17,14 @@ const Transactions = () => {
   const fetchTransactions = async () => {
     try {
       const res = await apiClient.get('/transactions');
-      setTransactions(res.data);
+      if (Array.isArray(res.data)) {
+        setTransactions(res.data);
+      } else {
+        console.warn('Expected array for transactions, got:', res.data);
+        setTransactions([]);
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Failed to fetch transactions:', err);
     }
   };
 
@@ -36,8 +41,14 @@ const Transactions = () => {
       });
       setShowModal(false);
       fetchTransactions();
-    } catch (err) {
-      alert('Failed to create transaction');
+    } catch (err: any) {
+      if (!err.response) {
+        alert('Server is unreachable. Please ensure the backend is running.');
+      } else {
+        const errorMsg = err.response?.data?.message || 'Failed to create transaction';
+        alert(errorMsg);
+      }
+      console.error('Transaction creation error:', err);
     }
   };
 
@@ -79,44 +90,52 @@ const Transactions = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {transactions.map((tx: any) => (
-              <tr key={tx.id} className="hover:bg-slate-50/50 transition-colors">
-                <td className="px-6 py-4 text-sm text-slate-600">
-                  {new Date(tx.createdAt).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-slate-900">
-                    {tx.senderId === user?.id ? (
-                      <>To: {tx.receiver?.profile?.displayName || 'User'}</>
-                    ) : (
-                      <>From: {tx.sender?.profile?.displayName || 'User'}</>
-                    )}
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">{tx.type}</td>
-                <td className="px-6 py-4 text-sm font-bold text-slate-900">
-                  {tx.senderId === user?.id ? '-' : '+'}${tx.amount.toFixed(2)}
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`badge ${
-                    tx.status === 'COMPLETED' ? 'badge-green' : 
-                    tx.status === 'FAILED' ? 'badge-red' : 'badge-gray'
-                  }`}>
-                    {tx.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  {tx.status === 'PENDING' && tx.receiverId === user?.id && (
-                    <button 
-                      onClick={() => completeTransaction(tx.id)}
-                      className="text-emerald-600 hover:text-emerald-700 font-bold text-xs"
-                    >
-                      COMPLETE
-                    </button>
-                  )}
+            {!Array.isArray(transactions) || transactions.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-10 text-center text-slate-400 text-sm">
+                  No transactions found
                 </td>
               </tr>
-            ))}
+            ) : (
+              transactions.map((tx: any) => (
+                <tr key={tx.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    {new Date(tx.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2 text-sm font-medium text-slate-900">
+                      {tx.senderId === user?.id ? (
+                        <>To: {tx.receiver?.profile?.displayName || 'User'}</>
+                      ) : (
+                        <>From: {tx.sender?.profile?.displayName || 'User'}</>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">{tx.type}</td>
+                  <td className="px-6 py-4 text-sm font-bold text-slate-900">
+                    {tx.senderId === user?.id ? '-' : '+'}${tx.amount.toFixed(2)}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`badge ${
+                      tx.status === 'COMPLETED' ? 'badge-green' : 
+                      tx.status === 'FAILED' ? 'badge-red' : 'badge-gray'
+                    }`}>
+                      {tx.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    {tx.status === 'PENDING' && tx.receiverId === user?.id && (
+                      <button 
+                        onClick={() => completeTransaction(tx.id)}
+                        className="text-emerald-600 hover:text-emerald-700 font-bold text-xs"
+                      >
+                        COMPLETE
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

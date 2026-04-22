@@ -1,10 +1,22 @@
 import { TransactionRepository } from '../repositories/TransactionRepository';
+import { UserRepository } from '../repositories/UserRepository';
 import { DomainEvents, eventBus } from '../observers/EventBus';
 
 export class TransactionService {
   private transactionRepo = new TransactionRepository();
 
+  private userRepo = new UserRepository();
+
   async create(data: any) {
+    if (data.senderId === data.receiverId) {
+      throw new Error('You cannot send funds to yourself');
+    }
+
+    const receiver = await this.userRepo.findById(data.receiverId);
+    if (!receiver) {
+      throw new Error('Receiver not found');
+    }
+
     const transaction = await this.transactionRepo.create(data);
     return transaction;
   }

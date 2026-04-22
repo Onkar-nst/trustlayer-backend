@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: trustlayer-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false   # Set in Render dashboard — PostgreSQL connection string
+      - key: JWT_SECRET
+        sync: false   # Set in Render dashboard — random secure string
+      - key: FRONTEND_URL
+        sync: false   # Set in Render dashboard — https://your-app.vercel.app

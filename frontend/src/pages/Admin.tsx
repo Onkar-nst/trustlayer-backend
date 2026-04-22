@@ -4,27 +4,27 @@ import { Check, X, AlertCircle, Users, FileCheck } from 'lucide-react';
 
 const Admin = () => {
   const [tab, setTab] = useState('verifications');
-  const [verifications, setVerifications] = useState([]);
-  const [disputes, setDisputes] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [verifications, setVerifications] = useState<any[]>([]);
+  const [disputes, setDisputes] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
 
   const fetchData = async () => {
     try {
       if (tab === 'verifications') {
         const res = await apiClient.get('/admin/identity/pending');
-        setVerifications(res.data);
+        setVerifications(Array.isArray(res.data) ? res.data : []);
       } else if (tab === 'disputes') {
         const res = await apiClient.get('/admin/disputes');
-        setDisputes(res.data);
+        setDisputes(Array.isArray(res.data) ? res.data : []);
       } else if (tab === 'users') {
         const res = await apiClient.get('/admin/users');
-        setUsers(res.data);
+        setUsers(Array.isArray(res.data) ? res.data : []);
       }
       const statsRes = await apiClient.get('/admin/stats');
       setStats(statsRes.data);
     } catch (err) {
-      console.error(err);
+      console.error('Admin fetch error:', err);
     }
   };
 
@@ -106,23 +106,31 @@ const Admin = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {verifications.map((v: any) => (
-                <tr key={v.userId} className="hover:bg-slate-50/50">
-                  <td className="px-6 py-4 text-sm font-medium">{v.user.email}</td>
-                  <td className="px-6 py-4 text-xs font-bold uppercase">{v.documentType}</td>
-                  <td className="px-6 py-4 text-xs text-blue-600 hover:underline">
-                    <a href={v.documentUrl} target="_blank" rel="noreferrer">View Doc</a>
-                  </td>
-                  <td className="px-6 py-4 text-right space-x-2">
-                    <button onClick={() => approveIdentity(v.userId)} className="p-1.5 text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100">
-                      <Check className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => rejectIdentity(v.userId)} className="p-1.5 text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100">
-                      <X className="w-4 h-4" />
-                    </button>
+              {verifications.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-10 text-center text-slate-400 text-sm">
+                    No pending verifications
                   </td>
                 </tr>
-              ))}
+              ) : (
+                verifications.map((v: any) => (
+                  <tr key={v.userId} className="hover:bg-slate-50/50">
+                    <td className="px-6 py-4 text-sm font-medium">{v.user.email}</td>
+                    <td className="px-6 py-4 text-xs font-bold uppercase">{v.documentType}</td>
+                    <td className="px-6 py-4 text-xs text-blue-600 hover:underline">
+                      <a href={v.documentUrl} target="_blank" rel="noreferrer">View Doc</a>
+                    </td>
+                    <td className="px-6 py-4 text-right space-x-2">
+                      <button onClick={() => approveIdentity(v.userId)} className="p-1.5 text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100">
+                        <Check className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => rejectIdentity(v.userId)} className="p-1.5 text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         )}
@@ -137,16 +145,24 @@ const Admin = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {disputes.map((d: any) => (
-                <tr key={d.id} className="hover:bg-slate-50/50">
-                  <td className="px-6 py-4 text-sm font-medium">{d.raisedBy.email}</td>
-                  <td className="px-6 py-4 text-sm text-slate-500">{d.reason}</td>
-                  <td className="px-6 py-4 text-right space-x-2">
-                    <button onClick={() => resolveDispute(d.id, 'accept')} className="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded">ACCEPT</button>
-                    <button onClick={() => resolveDispute(d.id, 'reject')} className="px-3 py-1 border border-slate-200 text-slate-600 text-xs font-bold rounded">REJECT</button>
+              {disputes.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="px-6 py-10 text-center text-slate-400 text-sm">
+                    No active disputes
                   </td>
                 </tr>
-              ))}
+              ) : (
+                disputes.map((d: any) => (
+                  <tr key={d.id} className="hover:bg-slate-50/50">
+                    <td className="px-6 py-4 text-sm font-medium">{d.raisedBy.email}</td>
+                    <td className="px-6 py-4 text-sm text-slate-500">{d.reason}</td>
+                    <td className="px-6 py-4 text-right space-x-2">
+                      <button onClick={() => resolveDispute(d.id, 'accept')} className="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded">ACCEPT</button>
+                      <button onClick={() => resolveDispute(d.id, 'reject')} className="px-3 py-1 border border-slate-200 text-slate-600 text-xs font-bold rounded">REJECT</button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         )}
@@ -155,21 +171,31 @@ const Admin = () => {
           <table className="w-full text-left">
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">ID (UUID)</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Email</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Name</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Trust Score</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {users.map((u: any) => (
-                <tr key={u.id}>
-                  <td className="px-6 py-4 text-sm">{u.email}</td>
-                  <td className="px-6 py-4 text-sm font-medium">{u.profile?.displayName}</td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm font-bold text-blue-600">{u.trustScore?.total || 50}</span>
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-10 text-center text-slate-400 text-sm">
+                    No users found
                   </td>
                 </tr>
-              ))}
+              ) : (
+                users.map((u: any) => (
+                  <tr key={u.id}>
+                    <td className="px-6 py-4 text-[10px] font-mono text-slate-400">{u.id}</td>
+                    <td className="px-6 py-4 text-sm">{u.email}</td>
+                    <td className="px-6 py-4 text-sm font-medium">{u.profile?.displayName}</td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm font-bold text-blue-600">{u.trustScore?.total || 50}</span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         )}

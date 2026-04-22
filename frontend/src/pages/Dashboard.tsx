@@ -17,22 +17,32 @@ import {
 const Dashboard = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState<any>(null);
-  const [activities, setActivities] = useState([]);
+  const [activities, setActivities] = useState<any[]>([]);
   const [score, setScore] = useState<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, activityRes, scoreRes] = await Promise.all([
-          apiClient.get('/admin/stats'), // Or specific user stats route
+        const [disputeRes, activityRes, scoreRes] = await Promise.all([
+          apiClient.get('/disputes/me'),
           apiClient.get('/audit/me'),
           apiClient.get(`/trust/${user?.id}`)
         ]);
-        setStats(statsRes.data);
-        setActivities(activityRes.data);
+
+        // Count user's own open disputes
+        const disputes = Array.isArray(disputeRes.data) ? disputeRes.data : [];
+        setStats({ openDisputes: disputes.filter((d: any) => d.status === 'OPEN').length });
+
+        const activityData = activityRes.data;
+        if (Array.isArray(activityData)) {
+          setActivities(activityData);
+        } else {
+          console.warn('Expected array for activities, got:', activityData);
+          setActivities([]);
+        }
         setScore(scoreRes.data);
       } catch (err) {
-        console.error('Failed to fetch dashboard data');
+        console.error('Failed to fetch dashboard data:', err);
       }
     };
     if (user) fetchData();

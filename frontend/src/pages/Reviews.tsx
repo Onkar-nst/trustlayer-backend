@@ -3,8 +3,8 @@ import apiClient from '../api/apiClient';
 import { Star, ShieldAlert } from 'lucide-react';
 
 const Reviews = () => {
-  const [received, setReceived] = useState([]);
-  const [given, setGiven] = useState([]);
+  const [received, setReceived] = useState<any[]>([]);
+  const [given, setGiven] = useState<any[]>([]);
   const [tab, setTab] = useState('received');
 
   const fetchData = async () => {
@@ -13,10 +13,20 @@ const Reviews = () => {
         apiClient.get('/reviews/me'),
         apiClient.get('/reviews/given')
       ]);
-      setReceived(receivedRes.data);
-      setGiven(givenRes.data);
+      
+      if (Array.isArray(receivedRes.data)) setReceived(receivedRes.data);
+      else {
+        console.warn('Expected array for received reviews, got:', receivedRes.data);
+        setReceived([]);
+      }
+
+      if (Array.isArray(givenRes.data)) setGiven(givenRes.data);
+      else {
+        console.warn('Expected array for given reviews, got:', givenRes.data);
+        setGiven([]);
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Failed to fetch reviews:', err);
     }
   };
 

@@ -3,14 +3,19 @@ import apiClient from '../api/apiClient';
 import { AlertCircle } from 'lucide-react';
 
 const Disputes = () => {
-  const [disputes, setDisputes] = useState([]);
+  const [disputes, setDisputes] = useState<any[]>([]);
 
   const fetchDisputes = async () => {
     try {
       const res = await apiClient.get('/disputes/me');
-      setDisputes(res.data);
+      if (Array.isArray(res.data)) {
+        setDisputes(res.data);
+      } else {
+        console.warn('Expected array for disputes, got:', res.data);
+        setDisputes([]);
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Failed to fetch disputes:', err);
     }
   };
 
@@ -29,7 +34,7 @@ const Disputes = () => {
       </div>
 
       <div className="space-y-4">
-        {disputes.length === 0 ? (
+        {!Array.isArray(disputes) || disputes.length === 0 ? (
           <div className="card text-center py-12">
             <AlertCircle className="w-12 h-12 text-slate-200 mx-auto mb-4" />
             <p className="text-slate-500 text-sm">You have no active disputes.</p>

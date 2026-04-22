@@ -5,4 +5,6 @@ dist
 
 /generated/prisma
 .vercel
-.env*.local
+
+# Keep .env.example files
+!.env.example

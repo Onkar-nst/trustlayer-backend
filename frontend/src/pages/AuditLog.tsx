@@ -4,15 +4,20 @@ import { format } from 'date-fns';
 import { Terminal } from 'lucide-react';
 
 const AuditLog = () => {
-  const [logs, setLogs] = useState([]);
+  const [logs, setLogs] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchLogs = async () => {
       try {
         const res = await apiClient.get('/audit/me');
-        setLogs(res.data);
+        if (Array.isArray(res.data)) {
+          setLogs(res.data);
+        } else {
+          console.warn('Expected array for logs, got:', res.data);
+          setLogs([]);
+        }
       } catch (err) {
-        console.error(err);
+        console.error('Failed to fetch audit logs:', err);
       }
     };
     fetchLogs();
@@ -36,31 +41,39 @@ const AuditLog = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {logs.map((log: any) => (
-              <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
-                <td className="px-6 py-4 text-xs font-medium text-slate-500 font-mono">
-                  {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1 bg-slate-100 rounded">
-                      <Terminal className="w-3 h-3 text-slate-500" />
-                    </div>
-                    <span className="text-xs font-bold text-slate-900 uppercase tracking-tighter">
-                      {log.action}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase">
-                  {log.entity}
-                </td>
-                <td className="px-6 py-4">
-                  <pre className="text-[10px] text-slate-400 bg-slate-50 p-2 rounded overflow-x-auto max-w-[300px]">
-                    {log.metadata}
-                  </pre>
+            {!Array.isArray(logs) || logs.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-6 py-10 text-center text-slate-400 text-sm">
+                  No activity logs recorded
                 </td>
               </tr>
-            ))}
+            ) : (
+              logs.map((log: any) => (
+                <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-4 text-xs font-medium text-slate-500 font-mono">
+                    {format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1 bg-slate-100 rounded">
+                        <Terminal className="w-3 h-3 text-slate-500" />
+                      </div>
+                      <span className="text-xs font-bold text-slate-900 uppercase tracking-tighter">
+                        {log.action}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase">
+                    {log.entity}
+                  </td>
+                  <td className="px-6 py-4">
+                    <pre className="text-[10px] text-slate-400 bg-slate-50 p-2 rounded overflow-x-auto max-w-[300px]">
+                      {log.metadata}
+                    </pre>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

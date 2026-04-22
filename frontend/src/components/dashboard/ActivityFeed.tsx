@@ -16,7 +16,7 @@ interface ActivityFeedProps {
 const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities }) => {
   return (
     <div className="space-y-6">
-      {activities.length === 0 ? (
+      {!Array.isArray(activities) || activities.length === 0 ? (
         <p className="text-sm text-slate-400 text-center py-4">No recent activity</p>
       ) : (
         activities.map((item) => (
@@ -34,7 +34,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities }) => {
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-1">
-                {JSON.stringify(item.metadata).substring(0, 100)}...
+                {item.metadata ? JSON.stringify(item.metadata).substring(0, 100) : 'No metadata'}...
               </p>
             </div>
           </div>
